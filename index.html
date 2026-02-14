@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Saver | Premium Downloader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 1. CONFIG & RESET --- */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --text-color: #ffffff;
+            --accent-color: #00f2fe;
+            --error-color: #ff4b4b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* --- 2. BACKGROUND & ANIMATION --- */
+        body {
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Dekorasi Blur */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 6s ease-in-out infinite;
+        }
+        .orb-1 { width: 300px; height: 300px; background: #ff00cc; top: 10%; left: 20%; }
+        .orb-2 { width: 400px; height: 400px; background: #3333ff; bottom: 10%; right: 10%; animation-delay: 2s; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* --- 3. MAIN CONTAINER --- */
+        .container {
+            width: 90%;
+            max-width: 700px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        /* --- 4. TYPOGRAPHY --- */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+        }
+
+        p.subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* --- 5. ICONS --- */
+        .platforms {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .platforms i {
+            font-size: 1.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            transition: 0.3s;
+        }
+        .platforms i:hover {
+            color: var(--accent-color);
+            transform: scale(1.2);
+            text-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* --- 6. INPUT AREA --- */
+        .input-group {
+            position: relative;
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50px;
+            padding: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 15px 20px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+        .btn-paste {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            padding: 0 15px;
+            transition: 0.3s;
+        }
+        .btn-paste:hover { color: #fff; }
+
+        .btn-download {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+        }
+
+        /* --- 7. RESULT SECTION --- */
+        #result-area {
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-thumb {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .result-title {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .download-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-action {
+            text-decoration: none;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* --- 8. UTILS --- */
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent-color);
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+        }
+
+/* Wrapper utama agar konten di tengah dan vertikal */
+.main-wrapper {
+    display: flex;
+    flex-direction: column; /* Susun ke bawah */
+    align-items: center;    /* Rata tengah */
+    gap: 30px;              /* Jarak antar kotak */
+    width: 100%;
+    max-width: 800px;       /* Batas lebar maksimal agar rapi */
+    margin: 50px 0;         /* Jarak atas bawah dari layar */
+    padding: 0 15px;        /* Padding pinggir untuk HP */
+    z-index: 10;
+}
+
+/* Spacer/Garis Pembatas Estetik */
+.spacer {
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+}
+
+/* Pastikan container lebarnya penuh mengikuti wrapper */
+.container {
+    width: 100%; 
+    max-width: 100%; /* Reset max-width lama agar ikut wrapper */
+}
+
+/* Reset CSS Body agar bisa scroll jika konten panjang */
+body {
+    /* Hapus 'height: 100vh' atau 'overflow: hidden' jika ada sebelumnya */
+    min-height: 100vh;
+    overflow-y: auto; /* Izinkan scroll ke bawah */
+    padding-bottom: 50px;
+}
+/* --- CSS HISTORY --- */
+.history-grid {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto; /* Scroll samping jika penuh */
+    padding-bottom: 10px;
+    scrollbar-width: thin; /* Untuk Firefox */
+    scrollbar-color: var(--accent-color) transparent;
+}
+
+/* Custom Scrollbar untuk Chrome/Safari */
+.history-grid::-webkit-scrollbar { height: 6px; }
+.history-grid::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
+
+.history-item {
+    min-width: 140px;
+    max-width: 140px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: 0.3s;
+    text-align: left;
+    position: relative;
+}
+
+.history-item:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-3px);
+}
+
+.history-thumb {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.history-tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent-color);
+    color: black;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.history-title {
+    font-size: 0.8rem;
+    color: #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Judul panjang jadi ... */
+    margin-bottom: 5px;
+    
+}
+
+.btn-history-action {
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 3px;
+}
+.btn-history-action:hover {
+    background: var(--accent-color);
+    color: black;
+}
+
+/* --- CSS TOMBOL COPY CAPTION --- */
+.btn-copy-caption {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin: 10px 0 20px 0; /* Jarak atas bawah */
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-copy-caption:hover {
+    background: var(--accent-color);
+    color: #000;
+    box-shadow: 0 0 10px var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.btn-copy-caption i {
+    font-size: 0.9rem;
+}
+/* --- CSS STATUS SERVER --- */
+.server-status {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 8px 15px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #888; /* Warna default abu-abu */
+    position: relative;
+}
+
+/* Efek Berkedip (Pulse) untuk lampu hijau */
+.status-online {
+    background: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+    animation: pulse-green 2s infinite;
+}
+
+.status-offline {
+    background: #ff4b4b;
+    box-shadow: 0 0 10px #ff4b4b;
+}
+
+@keyframes pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+}
+/* --- CSS RESPONSIVE MODE (HP & TABLET) --- */
+
+@media (max-width: 768px) {
+    /* 1. Atur Wrapper Utama */
+    .main-wrapper {
+        margin: 20px 0; /* Kurangi margin atas bawah di HP */
+        gap: 20px;
+    }
+
+    /* 2. Sesuaikan Ukuran Container */
+    .container {
+        padding: 25px 20px; /* Perkecil padding dalam kotak */
+        border-radius: 20px;
+    }
+
+    /* 3. Tipografi (Ukuran Teks) */
+    h1 {
+        font-size: 1.8rem; /* Perkecil judul utama */
+    }
+
+    h2 {
+        font-size: 1.3rem; /* Perkecil judul bagian */
+    }
+
+    p.subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+    }
+
+    /* 4. Input Group (Susun Vertikal jika perlu) */
+    .input-group {
+        flex-direction: column; /* Input dan Tombol jadi atas-bawah */
+        background: transparent;
+        border: none;
+        gap: 10px;
+    }
+
+    .input-group:focus-within {
+        box-shadow: none;
+    }
+
+    input {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 30px;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-download {
+        width: 100%; /* Tombol jadi lebar penuh */
+        padding: 15px;
+    }
+
+    .btn-paste {
+        position: absolute;
+        right: 15px;
+        top: 15px; /* Posisi ikon paste di dalam input */
+    }
+
+    /* 5. Grid Gambar (Gallery) */
+    #image-gallery {
+        grid-template-columns: 1fr; /* Foto jadi 1 kolom saja di HP */
+    }
+
+    .result-card {
+        width: 100% !important;
+    }
+
+    /* 6. Indikator Status Server */
+    .server-status {
+        bottom: 10px;
+        left: 10px;
+        font-size: 0.65rem;
+        padding: 6px 12px;
+    }
+
+    /* 7. Gallery Riwayat (History) */
+    .history-grid {
+        gap: 10px;
+    }
+
+    .history-item {
+        min-width: 120px;
+        max-width: 120px;
+    }
+}
+
+/* Khusus layar sangat kecil (iPhone SE / HP lama) */
+@media (max-width: 380px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .platforms {
+        gap: 15px;
+    }
+}
+    </style>
+</head>
+<body>
+
+   <div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div id="toast" class="toast">Notifikasi muncul di sini</div>
+
+<div class="main-wrapper">
+   
+    <div class="container">
+        <h1>Social Saver</h1>
+        <p class="subtitle">Download video favoritmu dari <br> <b>TikTok, Instagram, Facebook & Twitter</b>.</p>
+
+        <div class="platforms">
+            <i class="fab fa-tiktok" title="TikTok"></i>
+            <i class="fab fa-instagram" title="Instagram"></i>
+            <i class="fab fa-facebook" title="Facebook"></i>
+            <i class="fab fa-twitter" title="Twitter/X"></i>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Tempel link TikTok/IG di sini...">
+            <button class="btn-paste" onclick="pasteLink()" title="Tempel">
+                <i class="fas fa-paste"></i>
+            </button>
+            <button class="btn-download" onclick="fetchVideo()">
+                Download <i class="fas fa-bolt"></i>
+            </button>
+        </div>
+
+        <div class="loader" id="loader"></div>
+
+        <div id="result-area">
+            <div class="result-card">
+                <img src="" alt="Thumbnail" id="thumb" class="result-thumb" referrerpolicy="no-referrer">
+                <h3 id="videoTitle" class="result-title">Judul Video...</h3>
+                <div class="download-actions" id="downloadButtons"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="container">
+        <h2><i class="fas fa-images"></i> Photo Downloader</h2>
+        <p class="subtitle">Simpan Foto Instagram, Slide TikTok & Gambar Twitter kualitas HD.</p>
+
+        <div class="input-group">
+            <input type="text" id="imgUrlInput" placeholder="Tempel link Foto/Postingan di sini...">
+            <button class="btn-paste" onclick="pasteImageLink()" title="Tempel">
+                <i class="fas fa-paste"></i>
+            </button>
+            <button class="btn-download" onclick="fetchImage()">
+                Get Photo <i class="fas fa-camera"></i>
+            </button>
+        </div>
+
+        <div class="loader" id="loader-img"></div>
+
+        <div id="result-area-img" style="display: none; margin-top: 30px;">
+            <div id="image-gallery" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+                </div>
+        </div>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="container">
+        <h2><i class="fas fa-headphones-alt"></i> Music Downloader</h2>
+       <p class="subtitle">Ambil Audio/Lagu dari <b>TikTok, Instagram, SoundCloud & Facebook</b> (MP3).</p>
+        <div class="input-group">
+            <input type="text" id="musicUrlInput" placeholder="Tempel link Video/Musik di sini...">
+            <button class="btn-paste" onclick="pasteMusicLink()" title="Tempel">
+                <i class="fas fa-paste"></i>
+            </button>
+            <button class="btn-download" onclick="fetchMusic()">
+                Get Audio <i class="fas fa-music"></i>
+            </button>
+        </div>
+
+        <div class="loader" id="loader-music"></div>
+
+        <div id="result-area-music" style="display: none; margin-top: 30px;">
+            <div class="result-card">
+                <img src="" id="music-thumb" class="result-thumb" 
+                     style="width: 150px; height: 150px; border-radius: 50%; animation: spin 10s linear infinite;">
+                
+                <h3 id="musicTitle" class="result-title" style="margin-top: 15px;">Judul Lagu...</h3>
+                
+                <audio id="audioPreview" controls style="width: 100%; margin: 15px 0; border-radius: 30px; outline: none;"></audio>
+                
+                <div id="musicDownloadBtnArea"></div>
+            </div>
+        </div>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="container" id="history-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1.5rem; margin: 0;"><i class="fas fa-history"></i> Riwayat</h2>
+            <button onclick="clearHistory()" style="background: rgba(255,0,0,0.2); border: 1px solid red; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;">
+                <i class="fas fa-trash"></i> Hapus
+            </button>
+        </div>
+
+        <div id="history-list" class="history-grid">
+            </div>
+    </div>
+
+</div> 
+<div class="server-status">
+    <div id="status-dot" class="status-dot"></div>
+    <span id="status-text">Checking System...</span>
+</div>
+    
+    <script>
+        const API_KEY = 'ad59d50905msh8f27beab1e9149cp12354ejsn1c5aa27dd36b'; 
+        const API_URL = 'https://social-download-all-in-one.p.rapidapi.com/v1/social/autolink';
+        const API_HOST = 'social-download-all-in-one.p.rapidapi.com';
+// --- FITUR BARU: IMAGE DOWNLOADER LOGIC ---
+// --- FITUR BARU: MUSIC DOWNLOADER LOGIC ---
+// --- FITUR RIWAYAT / HISTORY ---
+
+        // 1. Fungsi Load History saat Website Dibuka
+        document.addEventListener('DOMContentLoaded', loadHistory);
+
+        function loadHistory() {
+            const historyData = JSON.parse(localStorage.getItem('socialSaverHistory') || '[]');
+            const historyList = document.getElementById('history-list');
+            const historySection = document.getElementById('history-section');
+
+            // Jika kosong, sembunyikan section history
+            if (historyData.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+
+            historySection.style.display = 'block';
+            historyList.innerHTML = '';
+
+            historyData.forEach(item => {
+                // Gunakan Proxy untuk gambar history juga agar tidak broken
+                const proxyThumb = `https://wsrv.nl/?url=${encodeURIComponent(item.thumb)}&w=200`;
+
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-tag">${item.type}</div>
+                    <img src="${proxyThumb}" class="history-thumb" onerror="this.src='https://via.placeholder.com/150?text=Error'">
+                    <div class="history-title">${item.title}</div>
+                    <a href="${item.url}" target="_blank" class="btn-history-action">
+                        <i class="fas fa-external-link-alt"></i> Buka Link
+                    </a>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
+        // 2. Fungsi Menyimpan ke History
+        function addToHistory(type, title, thumb, originalUrl) {
+            // Ambil data lama
+            let history = JSON.parse(localStorage.getItem('socialSaverHistory') || '[]');
+
+            // Cek duplikat (agar tidak nyimpen link yang sama berkali-kali)
+            const isDuplicate = history.some(h => h.url === originalUrl);
+            if (isDuplicate) return;
+
+            // Tambah data baru ke urutan pertama (unshift)
+            history.unshift({
+                type: type, // 'Video', 'Photo', atau 'Music'
+                title: title || 'No Title',
+                thumb: thumb || 'https://via.placeholder.com/150',
+                url: originalUrl,
+                date: new Date().toISOString()
+            });
+
+            // Batasi cuma simpan 10 riwayat terakhir
+            if (history.length > 10) {
+                history.pop(); // Hapus yang paling lama
+            }
+
+            // Simpan ke Browser
+            localStorage.setItem('socialSaverHistory', JSON.stringify(history));
+
+            // Refresh tampilan history
+            loadHistory();
+        }
+
+        // 3. Fungsi Hapus Semua History
+        function clearHistory() {
+            if(confirm("Hapus semua riwayat download?")) {
+                localStorage.removeItem('socialSaverHistory');
+                loadHistory(); // Update tampilan (jadi hilang)
+                showToast("Riwayat berhasil dihapus.", "success");
+            }
+        }
+        // 1. Auto Paste Music
+        async function pasteMusicLink() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('musicUrlInput').value = text;
+                showToast("Link musik ditempel!", "success");
+            } catch (err) {
+                showToast("Izinkan akses clipboard.", "error");
+            }
+        }
+
+        // 2. Fetch Music Data
+        async function fetchMusic() {
+            const inputUrl = document.getElementById('musicUrlInput').value.trim();
+            const loader = document.getElementById('loader-music');
+            const resultArea = document.getElementById('result-area-music');
+
+            if (!inputUrl) {
+                showToast("Masukkan link dulu!", "error");
+                return;
+            }
+
+            // Reset UI
+            resultArea.style.display = 'none';
+            loader.style.display = 'block';
+            
+            // Matikan audio sebelumnya jika ada yang main
+            const audioPlayer = document.getElementById('audioPreview');
+            audioPlayer.pause();
+            audioPlayer.src = "";
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'x-rapidapi-key': API_KEY,
+                    'x-rapidapi-host': API_HOST,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: inputUrl })
+            };
+
+            try {
+                const response = await fetch(API_URL, options);
+                const data = await response.json();
+
+                if (data && (data.medias || data.url)) {
+                    renderMusicResult(data);
+                } else {
+                    throw new Error("Audio tidak ditemukan.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                showToast("Gagal mengambil audio. Coba link lain.", "error");
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // 3. Render Music Result
+        function renderMusicResult(data) {
+            const resultArea = document.getElementById('result-area-music');
+            const thumbImg = document.getElementById('music-thumb');
+            const titleTxt = document.getElementById('musicTitle');
+            const audioPlayer = document.getElementById('audioPreview');
+            const btnArea = document.getElementById('musicDownloadBtnArea');
+
+            // A. Cari Data Audio (Filter MP3/M4A/Audio Type)
+            let audioUrl = null;
+            let quality = "";
+
+            if (data.medias && Array.isArray(data.medias)) {
+                // Cari yang tipe audio atau ekstensi mp3/m4a
+                const found = data.medias.find(m => m.type === 'audio' || m.extension === 'mp3' || m.extension === 'm4a');
+                if (found) {
+                    audioUrl = found.url;
+                    quality = found.quality || "128kbps";
+                }
+            } 
+            
+            // Fallback: Jika API kirim object 'music' (biasanya TikTok)
+            if (!audioUrl && data.music && data.music.url) {
+                audioUrl = data.music.url;
+            }
+
+            // Jika masih tidak ketemu, cek link utama
+            if (!audioUrl && data.url && (data.extension === 'mp3' || data.type === 'audio')) {
+                audioUrl = data.url;
+            }
+
+            // JIKA AUDIO TIDAK DITEMUKAN
+            if (!audioUrl) {
+                showToast("Format Audio (MP3) tidak tersedia untuk link ini. Coba download videonya di atas.", "error");
+                return;
+            }
+
+            // B. Set Tampilan
+            // Gambar: Gunakan cover album jika ada, atau avatar author, atau default
+            let imgUrl = data.music ? data.music.cover : (data.cover || data.thumbnail);
+            if (!imgUrl) imgUrl = "https://via.placeholder.com/150/764ba2/ffffff?text=Music";
+            
+            thumbImg.src = imgUrl; // Tidak perlu proxy ketat untuk thumbnail musik biasanya
+            
+            // Judul
+            let title = "";
+            if (data.music) {
+                title = `${data.music.title} - ${data.music.author}`;
+            } else {
+                title = data.title || "Audio Track";
+            }
+            titleTxt.innerText = title.substring(0, 60);
+
+            // C. Set Player Audio
+            audioPlayer.src = audioUrl;
+
+            // D. Buat Tombol Download
+            btnArea.innerHTML = '';
+            const downloadBtn = document.createElement('a');
+            downloadBtn.className = 'btn-download'; // Pakai style tombol utama biar keren
+            downloadBtn.style.marginTop = '10px';
+            downloadBtn.style.width = '100%';
+            downloadBtn.href = "#";
+            downloadBtn.innerHTML = `<i class="fas fa-download"></i> Download MP3`;
+
+            // Gunakan fungsi download Blob (sama seperti gambar) agar auto-save
+            downloadBtn.onclick = (e) => downloadAudio(e, audioUrl, title);
+
+            btnArea.appendChild(downloadBtn);
+            resultArea.style.display = 'block';
+            
+            // Scroll ke hasil
+            resultArea.scrollIntoView({ behavior: 'smooth' });
+            showToast("Audio berhasil ditemukan!", "success");
+            const currentMusicUrl = document.getElementById('musicUrlInput').value;
+            addToHistory('Music', titleTxt.innerText, thumbImg.src, currentMusicUrl);
+        }
+
+        // 4. Fungsi Download Audio (Auto Save)
+      // 4. Fungsi Download Audio (Smart Fallback)
+        async function downloadAudio(e, url, filename) {
+            e.preventDefault();
+            const btn = e.target.closest('a');
+            const originalText = btn.innerHTML;
+            
+            // Ubah tombol jadi loading
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+            btn.style.pointerEvents = 'none';
+
+            try {
+                // Cek dulu: Jika ini link YouTube (googlevideo), jangan dipaksa fetch.
+                // Langsung lempar ke cara aman (Tab Baru) karena pasti kena CORS.
+                if (url.includes('googlevideo.com')) {
+                    throw new Error("YouTube Link Detected (Skip Fetch)");
+                }
+
+                // Untuk link non-YouTube (TikTok/Soundcloud), kita coba fetch blob
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Gagal Fetch");
+
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                
+                // Bersihkan nama file
+                const safeName = filename.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+                link.download = `${safeName}.mp3`;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+
+                btn.innerHTML = `<i class="fas fa-check"></i> Selesai!`;
+                showToast("Audio berhasil disimpan!", "success");
+
+            } catch (err) {
+                // --- BAGIAN PENYELAMAT (FALLBACK) ---
+                console.warn("Auto-download diblokir browser, beralih ke Direct Link...");
+                
+                // Buka di tab baru agar user bisa download manual
+                const win = window.open(url, '_blank', 'noopener,noreferrer');
+                if(win) win.opener = null;
+
+                showToast("Download dimulai di tab baru (Tekan titik tiga > Download)", "success");
+                btn.innerHTML = `<i class="fas fa-external-link-alt"></i> Opened`;
+            } finally {
+                // Kembalikan tombol setelah 2 detik
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.pointerEvents = 'auto';
+                }, 2500);
+            }
+        }
+        // 1. Auto Paste untuk Input Gambar
+        async function pasteImageLink() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('imgUrlInput').value = text;
+                showToast("Link foto ditempel!", "success");
+            } catch (err) {
+                showToast("Izinkan akses clipboard.", "error");
+            }
+        }
+
+        // 2. Fetch Data Khusus Gambar
+        async function fetchImage() {
+            const inputUrl = document.getElementById('imgUrlInput').value.trim();
+            const loader = document.getElementById('loader-img');
+            const resultArea = document.getElementById('result-area-img');
+            const gallery = document.getElementById('image-gallery');
+
+            if (!inputUrl) {
+                showToast("Masukkan link foto dulu!", "error");
+                return;
+            }
+
+            // Reset UI
+            resultArea.style.display = 'none';
+            gallery.innerHTML = '';
+            loader.style.display = 'block';
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'x-rapidapi-key': API_KEY, // Mengambil variable API_KEY yang sudah ada di atas
+                    'x-rapidapi-host': API_HOST,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: inputUrl })
+            };
+
+            try {
+                const response = await fetch(API_URL, options);
+                const data = await response.json();
+
+                if (data && (data.medias || data.url)) {
+                    renderImageResult(data);
+                } else {
+                    throw new Error("Gambar tidak ditemukan.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                showToast("Gagal mengambil gambar. Pastikan link publik.", "error");
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // 3. Render Hasil Gambar (Gallery Mode)
+        function renderImageResult(data) {
+            const resultArea = document.getElementById('result-area-img');
+            const gallery = document.getElementById('image-gallery');
+            // ... di dalam renderImageResult(data) ...
+
+    // ... setelah kode: resultArea.style.display = 'block'; ...
+
+    // --- FITUR BARU: TOMBOL COPY CAPTION (PHOTO) ---
+    // 1. Ambil caption asli
+    const fullCaption = data.title || data.description || "";
+    
+    // 2. Cari area header galeri (Kita sisipkan sebelum galeri gambar)
+    // Pastikan kita tidak menumpuk tombol (hapus yang lama dulu)
+    const existingBtn = document.getElementById('btn-copy-photo');
+    if(existingBtn) existingBtn.remove();
+
+    if (fullCaption) {
+        const copyBtn = document.createElement('button');
+        copyBtn.id = 'btn-copy-photo';
+        copyBtn.className = 'btn-copy-caption';
+        copyBtn.style.marginBottom = "20px"; // Jarak ke foto
+        copyBtn.innerHTML = `<i class="far fa-copy"></i> Salin Caption Instagram`;
+        
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(fullCaption);
+            copyBtn.innerHTML = `<i class="fas fa-check"></i> Tersalin!`;
+            setTimeout(() => {
+                copyBtn.innerHTML = `<i class="far fa-copy"></i> Salin Caption Instagram`;
+            }, 2000);
+            showToast("Caption foto disalin!", "success");
+        };
+
+        // Masukkan tombol SEBELUM div gallery
+        const gallery = document.getElementById('image-gallery');
+        gallery.parentNode.insertBefore(copyBtn, gallery);
+    }
+    // -----------------------------------------------
+
+// ... lanjut ke loop gambar ...
+            
+            let images = [];
+
+            // A. Logika Deteksi Gambar
+            // Kadang API kirim array di 'medias', kadang single 'url'
+            if (data.medias && Array.isArray(data.medias)) {
+                // Filter hanya yang tipe 'image' atau tidak punya extension mp4
+                images = data.medias.filter(m => !m.extension || m.extension !== 'mp4');
+                // Jika kosong (mungkin API tidak kasih tipe), ambil semua
+                if (images.length === 0) images = data.medias;
+            } else if (data.url) {
+                images.push({ url: data.url });
+            }
+
+            if (images.length === 0) {
+                showToast("Tidak ada gambar ditemukan di link ini.", "error");
+                return;
+            }
+
+            // B. Loop setiap gambar (Fitur Slide IG/TikTok)
+            images.forEach((img, index) => {
+                if(img.url) {
+                    // Gunakan Proxy agar gambar muncul (Fix Error NotSameOrigin)
+                    const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(img.url)}`;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.style.width = '100%'; 
+                    card.style.maxWidth = '300px'; // Agar rapi berjejer
+                    
+                    card.innerHTML = `
+                        <img src="${proxyUrl}" 
+                             class="result-thumb" 
+                             style="height: 250px; object-fit: cover;"
+                             onerror="this.src='https://via.placeholder.com/300?text=Error'">
+                        
+                        <div style="margin-top:10px;">
+                            <a href="#" class="btn-action" onclick="downloadImage(event, '${img.url}')">
+                                <i class="fas fa-download"></i> Download Image ${index + 1}
+                            </a>
+                        </div>
+                    `;
+                    
+                    gallery.appendChild(card);
+                }
+            });
+
+            resultArea.style.display = 'block';
+            showToast(`Berhasil menemukan ${images.length} gambar!`, "success");
+            // Simpan ke History (Type: Photo)
+const currentImgUrl = document.getElementById('imgUrlInput').value;
+// Ambil thumbnail dari gambar pertama
+const firstThumb = images[0].url || 'https://via.placeholder.com/150'; 
+addToHistory('Photo', 'Instagram/TikTok Photo', firstThumb, currentImgUrl);
+            // Scroll otomatis ke bagian hasil gambar
+            resultArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 4. Fungsi Download Gambar Aman (Buka Tab Baru via Proxy)
+      // 4. Fungsi Download Gambar Otomatis (Auto Save)
+        async function downloadImage(e, originalUrl) {
+            e.preventDefault();
+            
+            // Ambil elemen tombol yang diklik untuk efek loading
+            const btn = e.target.closest('a') || e.target;
+            const originalText = btn.innerHTML;
+
+            // Ubah teks tombol jadi Loading
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+            btn.style.pointerEvents = 'none'; // Cegah klik ganda
+
+            try {
+                // 1. Gunakan Proxy agar bisa didownload oleh browser
+                const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&output=jpg`;
+                
+                // 2. Ambil data gambar (Fetch)
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) throw new Error("Gagal mengambil gambar");
+
+                // 3. Ubah data menjadi 'Blob' (File Biner)
+                const blob = await response.blob();
+                
+                // 4. Buat URL sementara di memori browser
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                // 5. Buat Link Gaib untuk memaksa download
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                // Beri nama file otomatis berdasarkan waktu agar unik
+                link.download = `SocialSaver_Img_${Date.now()}.jpg`; 
+                
+                document.body.appendChild(link);
+                link.click(); // Klik otomatis
+                document.body.removeChild(link);
+                
+                // Bersihkan memori
+                window.URL.revokeObjectURL(blobUrl);
+
+                // Kembalikan tombol ke kondisi sukses
+                btn.innerHTML = `<i class="fas fa-check"></i> Saved!`;
+                showToast("Gambar berhasil disimpan!", "success");
+
+            } catch (error) {
+                console.error(error);
+                // Fallback: Jika gagal auto-download, baru buka tab baru (opsi terakhir)
+                window.open(originalUrl, '_blank');
+                showToast("Gagal auto-save, membuka tab baru...", "error");
+            } finally {
+                // Kembalikan tombol ke semula setelah 2 detik
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.pointerEvents = 'auto';
+                }, 2000);
+            }
+        }
+        // Auto Paste Function
+        async function pasteLink() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('urlInput').value = text;
+                showToast("Link berhasil ditempel!", "success");
+            } catch (err) {
+                showToast("Gagal menempel link. Izinkan akses clipboard.", "error");
+            }
+        }
+
+        // Main Fetch Function
+        async function fetchVideo() {
+            const inputUrl = document.getElementById('urlInput').value.trim();
+            const loader = document.getElementById('loader');
+            const resultArea = document.getElementById('result-area');
+            const btnArea = document.getElementById('downloadButtons');
+
+            // 1. Validasi Input Kosong
+            if (!inputUrl) {
+                showToast("Harap masukkan link terlebih dahulu!", "error");
+                return;
+            }
+
+            // 2. FILTER: Blokir YouTube secara manual agar tidak error
+            if (inputUrl.includes('youtube.com') || inputUrl.includes('youtu.be')) {
+                showToast("Maaf, download YouTube sedang dinonaktifkan.", "error");
+                return;
+            }
+
+            // 3. Reset UI
+            resultArea.style.display = 'none';
+            loader.style.display = 'block';
+            btnArea.innerHTML = '';
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'x-rapidapi-key': API_KEY,
+                    'x-rapidapi-host': API_HOST,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: inputUrl })
+            };
+
+            try {
+                const response = await fetch(API_URL, options);
+                if (!response.ok) throw new Error("Gagal terhubung ke server.");
+
+                const data = await response.json();
+                console.log(data); // Debugging
+
+                if (data && (data.medias || data.url)) {
+                    renderResult(data);
+                } else {
+                    throw new Error("Konten tidak ditemukan atau akun private.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                showToast(error.message || "Terjadi kesalahan.", "error");
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // Render Result Function
+      function renderResult(data) {
+    const resultArea = document.getElementById('result-area');
+    const thumbImg = document.getElementById('thumb');
+    const titleTxt = document.getElementById('videoTitle');
+    const btnArea = document.getElementById('downloadButtons');
+
+    // 1. Ambil URL Thumbnail Asli
+    let originalThumbUrl = data.cover || data.thumbnail || data.picture;
+
+    // Jika tidak ada URL gambar, pakai placeholder
+    if (!originalThumbUrl) {
+        originalThumbUrl = 'https://via.placeholder.com/600x400/00f2fe/ffffff?text=Social+Saver';
+    }
+
+    // 2. Siapkan URL Cadangan (Proxy)
+    // Ini hanya dipakai jika cara biasa gagal (Khusus untuk IG biasanya)
+    const proxyThumbUrl = `https://wsrv.nl/?url=${encodeURIComponent(originalThumbUrl)}`;
+
+    // 3. LOGIKA SMART IMAGE LOADING
+    // Langkah A: Coba load langsung (Cocok untuk TikTok/X/FB)
+    thumbImg.src = originalThumbUrl;
+
+    // Langkah B: Jika gagal (Error), otomatis pindah ke Proxy
+    thumbImg.onerror = function() {
+        // Cek: Apakah kita sudah coba pakai proxy?
+        if (this.src !== proxyThumbUrl) {
+            console.log("Gagal load langsung, mencoba jalur Proxy...");
+            this.src = proxyThumbUrl; 
+        } else {
+            // Langkah C: Jika Proxy pun gagal, tampilkan pesan error
+            this.src = 'https://via.placeholder.com/600x400/ff4b4b/ffffff?text=No+Preview';
+        }
+    };
+
+   // 3. Set Judul & Caption
+    // PENTING: Simpan teks asli secara penuh sebelum dipotong
+    const fullCaption = data.title || data.description || ""; 
+    
+    // Tampilkan judul yang dipotong (biar tidak kepanjangan di layar)
+    titleTxt.innerText = fullCaption.substring(0, 100) + (fullCaption.length > 100 ? "..." : "");
+
+    // --- FITUR BARU: TOMBOL COPY CAPTION ---
+    // Hapus tombol copy lama jika ada (biar gak dobel saat search ulang)
+    const oldBtn = document.getElementById('btn-copy-video');
+    if(oldBtn) oldBtn.remove();
+
+    // Buat Tombol Baru
+    if (fullCaption) {
+        const copyBtn = document.createElement('button');
+        copyBtn.id = 'btn-copy-video';
+        copyBtn.className = 'btn-copy-caption';
+        copyBtn.innerHTML = `<i class="far fa-copy"></i> Salin Caption / Hashtag`;
+        
+        // Logika Copy ke Clipboard
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(fullCaption);
+            
+            // Efek Visual
+            copyBtn.innerHTML = `<i class="fas fa-check"></i> Tersalin!`;
+            setTimeout(() => {
+                copyBtn.innerHTML = `<i class="far fa-copy"></i> Salin Caption / Hashtag`;
+            }, 2000);
+            
+            showToast("Caption berhasil disalin ke clipboard!", "success");
+        };
+
+        // Masukkan tombol SETELAH judul video (titleTxt)
+        titleTxt.parentNode.insertBefore(copyBtn, titleTxt.nextSibling);
+    }
+
+    // 5. Proses Link Download
+    let links = [];
+    if (data.medias && Array.isArray(data.medias)) {
+        links = data.medias;
+    } else if (data.url) {
+        links.push({ url: data.url, quality: 'HD', extension: 'mp4' });
+    }
+
+    // Bersihkan tombol lama
+    btnArea.innerHTML = '';
+
+    // Buat Tombol Baru
+    if (links.length > 0) {
+        links.forEach(media => {
+            if(media.url) {
+                const linkBtn = document.createElement('a');
+                linkBtn.href = "#"; 
+                linkBtn.className = "btn-action";
+                
+                let label = "Download";
+                if (media.quality) label += ` ${media.quality}`;
+                if (media.extension === 'mp3' || media.type === 'audio') {
+                    label = "Download Audio";
+                }
+
+                linkBtn.innerHTML = `<i class="fas fa-cloud-download-alt"></i> ${label}`;
+
+                linkBtn.onclick = (e) => {
+                    e.preventDefault();
+                    // Buka tab baru tanpa referrer
+                    const win = window.open(media.url, '_blank', 'noopener,noreferrer');
+                    if (win) win.opener = null;
+                    showToast("Cek tab baru untuk download", "success");
+                };
+
+                btnArea.appendChild(linkBtn);
+            }
+        });
+        resultArea.style.display = 'block';
+        showToast("Video berhasil ditemukan!", "success");
+        const currentInputUrl = document.getElementById('urlInput').value; 
+addToHistory('Video', title, thumbnail, currentInputUrl);
+    } else {
+        showToast("Link download tidak tersedia.", "error");
+    }
+}
+        // Toast Notification Function
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            toast.style.borderLeftColor = type === 'error' ? 'var(--error-color)' : 'var(--accent-color)';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+        // --- FITUR STATUS SERVER ---
+
+// Jalankan cek status saat halaman dimuat
+document.addEventListener('DOMContentLoaded', checkServerStatus);
+
+async function checkServerStatus() {
+    const dot = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+
+    // Kita lakukan "Ping" ringan ke API dengan link asal (pasti gagal tapi status 200/404/403 tetap menandakan server hidup)
+    const options = {
+        method: 'POST',
+        headers: {
+            'x-rapidapi-key': API_KEY,
+            'x-rapidapi-host': API_HOST,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: 'https://google.com' }) // Hanya untuk tes koneksi
+    };
+
+    try {
+        const response = await fetch(API_URL, options);
+        
+        // Jika server merespons (apapun statusnya selain 5xx), berarti API hidup
+        if (response.status !== 500 && response.status !== 502 && response.status !== 503) {
+            dot.className = 'status-dot status-online';
+            text.innerText = 'API Online';
+        } else {
+            throw new Error('Server Down');
+        }
+    } catch (error) {
+        dot.className = 'status-dot status-offline';
+        text.innerText = 'API Gangguan';
+        console.warn("Server API sedang bermasalah.");
+    }
+}
+    </script>
+</body>
+</html>
